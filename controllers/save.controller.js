@@ -12,7 +12,7 @@ exports.guardarDibujo = async (req, res) => {
     const nuevoDibujo = new Drawing({
       nombre,
       filename: req.file.filename,
-      userId: req.user.id, // viene del token
+      userId: req.user.id, 
     });
 
     await nuevoDibujo.save();
