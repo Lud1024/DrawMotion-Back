@@ -11,7 +11,11 @@ const PORT = process.env.PORT || 5000;
 // Conexión a MongoDB
 connectDB();
 
-app.use(cors());
+app.use(cors({
+  origin: '*', // o tu dominio de frontend específico
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
