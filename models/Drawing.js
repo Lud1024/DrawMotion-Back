@@ -1,9 +1,10 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const DrawingSchema = new mongoose.Schema({
-  nombre: { type: String, required: true },
-  filename: { type: String, required: true },
-  fecha: { type: Date, default: Date.now }
-})
+const drawingSchema = new mongoose.Schema({
+  nombre: String,
+  filename: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  fecha: { type: Date, default: Date.now },
+});
 
-module.exports = mongoose.model('Drawing', DrawingSchema)
+module.exports = mongoose.model('Drawing', drawingSchema);

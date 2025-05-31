@@ -1,51 +1,51 @@
-const fs = require('fs')
-const path = require('path')
-const Drawing = require('../models/Drawing')
+const fs = require('fs');
+const path = require('path');
+const Drawing = require('../models/Drawing');
 
 exports.guardarDibujo = async (req, res) => {
   try {
-    const { nombre } = req.body
+    const { nombre } = req.body;
     if (!req.file || !nombre) {
-      console.log('❌ Petición inválida. Falta archivo o nombre.')
-      return res.status(400).json({ error: 'Faltan datos' })
+      return res.status(400).json({ error: 'Faltan datos' });
     }
 
     const nuevoDibujo = new Drawing({
       nombre,
-      filename: req.file.filename
-    })
+      filename: req.file.filename,
+      userId: req.user.id, // viene del token
+    });
 
-    await nuevoDibujo.save()
+    await nuevoDibujo.save();
 
-    console.log(`✅ Dibujo guardado: ${nombre} -> ${req.file.filename}`)
-    res.status(200).json({ message: 'Dibujo guardado con éxito', id: nuevoDibujo._id })
+    res.status(200).json({ message: 'Dibujo guardado con éxito', id: nuevoDibujo._id });
   } catch (error) {
-    console.error('❌ Error en guardarDibujo:', error)
-    res.status(500).json({ error: 'Error al guardar el dibujo' })
+    res.status(500).json({ error: 'Error al guardar el dibujo' });
   }
-}
+};
 
 exports.obtenerTodos = async (req, res) => {
   try {
-    const dibujos = await Drawing.find().sort({ fecha: -1 })
-    res.json(dibujos)
+    const dibujos = await Drawing.find({ userId: req.user.id }).sort({ fecha: -1 });
+    res.json(dibujos);
   } catch (error) {
-    console.error('❌ Error al obtener dibujos:', error)
-    res.status(500).json({ error: 'Error al obtener los dibujos' })
+    res.status(500).json({ error: 'Error al obtener los dibujos' });
   }
-}
+};
 
 exports.obtenerPorId = async (req, res) => {
   try {
-    const dibujo = await Drawing.findById(req.params.id)
+    const dibujo = await Drawing.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+
     if (!dibujo) {
-      return res.status(404).json({ error: 'Dibujo no encontrado' })
+      return res.status(404).json({ error: 'Dibujo no encontrado o no autorizado' });
     }
 
-    const filePath = path.join(__dirname, '../uploads', dibujo.filename)
-    res.sendFile(filePath)
+    const filePath = path.join(__dirname, '../uploads', dibujo.filename);
+    res.sendFile(filePath);
   } catch (error) {
-    console.error('❌ Error al obtener dibujo por ID:', error)
-    res.status(500).json({ error: 'Error al obtener el dibujo' })
+    res.status(500).json({ error: 'Error al obtener el dibujo' });
   }
-}
+};
